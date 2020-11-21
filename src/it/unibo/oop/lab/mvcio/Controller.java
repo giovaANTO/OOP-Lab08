@@ -1,31 +1,54 @@
 package it.unibo.oop.lab.mvcio;
 
-/**
- * 
- */
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+
 public class Controller {
+    private static final String STDPATH = System.getProperty("user.home") + System.getProperty("file.separator") + "output.txt";
+    private File currentFile;
 
-    /*
-     * This class must implement a simple controller responsible of I/O access. It
-     * considers a single file at a time, and it is able to serialize objects in it.
-     * 
-     * Implement this class with:
-     * 
-     * 1) A method for setting a File as current file
-     * 
-     * 2) A method for getting the current File
-     * 
-     * 3) A method for getting the path (in form of String) of the current File
-     * 
-     * 4) A method that gets a String as input and saves its content on the current
-     * file. This method may throw an IOException.
-     * 
-     * 5) By default, the current file is "output.txt" inside the user home folder.
-     * A String representing the local user home folder can be accessed using
-     * System.getProperty("user.home"). The separator symbol (/ on *nix, \ on
-     * Windows) can be obtained as String through the method
-     * System.getProperty("file.separator"). The combined use of those methods leads
-     * to a software that runs correctly on every platform.
-     */
+    public Controller() {
+       this.createFile(STDPATH);
+    }
 
+    public final void setAsCurrentFile(final String pathName) {
+        try {
+            if (this.currentFile.delete()) {
+                this.createFile(pathName);
+            }
+        } catch (SecurityException e) {
+            System.out.println("Error deleting file from the system");
+        }
+    }
+
+
+    private void createFile(final String pathName) {
+        this.currentFile = new File(pathName);
+        this.currentFile.setWritable(true);
+        this.currentFile.deleteOnExit();
+
+        try {
+             this.currentFile.createNewFile();
+         } catch (IOException e) {
+             System.out.println("Error while creating the output file");
+             e.printStackTrace();
+         }
+    }
+
+
+    public final File getFile() {
+        return this.currentFile;
+    }
+
+
+    public final void writeOnFile(final String inputString) {
+        try (PrintStream ps = new PrintStream(this.currentFile.getPath())) {
+            ps.print(inputString);
+        } catch (FileNotFoundException e1) {
+           System.out.println("Error : " + e1.getMessage());
+            e1.printStackTrace();
+        }
+    }
 }
