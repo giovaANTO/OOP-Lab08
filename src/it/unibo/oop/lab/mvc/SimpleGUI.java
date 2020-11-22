@@ -1,9 +1,18 @@
 package it.unibo.oop.lab.mvc;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * A very simple program using a graphical interface.
@@ -12,6 +21,8 @@ import javax.swing.JFrame;
 public final class SimpleGUI {
 
     private final JFrame frame = new JFrame();
+
+    private final Controller applicationController = new AppController();
 
     /*
      * Once the Controller is done, implement this class in such a way that:
@@ -60,6 +71,43 @@ public final class SimpleGUI {
          * on screen. Results may vary, but it is generally the best choice.
          */
         frame.setLocationByPlatform(true);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        final JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        final JTextField textField = new JTextField();
+        mainPanel.add(textField, BorderLayout.NORTH);
+        final JTextArea storyTextArea = new JTextArea();
+        mainPanel.add(storyTextArea, BorderLayout.CENTER);
+        final JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        final JButton printButton = new JButton("Print");
+        printButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                applicationController.setNextString(textField.getText());
+                applicationController.printCurrentString();
+            }
+        });
+        final JButton storyButton = new JButton("Show history");
+        storyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                storyTextArea.setText("");
+                final List<String> stringList = applicationController.history();
+                stringList.forEach(el -> storyTextArea.append(el + "\n"));
+            }
+        });
+        buttonPanel.add(printButton);
+        buttonPanel.add(storyButton);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        this.frame.add(mainPanel);
     }
 
+    public void display() {
+        this.frame.setVisible(true);
+    }
+
+    public static void main(final String[] args) {
+        new SimpleGUI().display();
+    }
 }
