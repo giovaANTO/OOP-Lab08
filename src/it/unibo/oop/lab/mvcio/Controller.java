@@ -27,7 +27,6 @@ public class Controller {
     private void createFile(final String pathName) {
         this.currentFile = new File(pathName);
         this.currentFile.setWritable(true);
-        this.currentFile.deleteOnExit();
 
         try {
              this.currentFile.createNewFile();

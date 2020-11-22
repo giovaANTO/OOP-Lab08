@@ -68,9 +68,9 @@ public final class SimpleGUI {
          * Set exit on close as default option on the window closing 
          */
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    private void display()  {
+        /*
+         * View construction
+         */
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         final JTextArea txtArea = new JTextArea();
@@ -86,6 +86,9 @@ public final class SimpleGUI {
          * Set the panel as visible
          */
         this.frame.add(mainPanel);
+    }
+
+    private void display()  {
         this.frame.setVisible(true);
     }
 
