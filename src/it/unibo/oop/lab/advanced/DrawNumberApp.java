@@ -1,35 +1,59 @@
 package it.unibo.oop.lab.advanced;
 
-/**
- */
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+
 public final class DrawNumberApp implements DrawNumberViewObserver {
 
     private static final int MIN = 0;
     private static final int MAX = 100;
     private static final int ATTEMPTS = 10;
     private final DrawNumber model;
-    private final DrawNumberView view;
+    private final List<DrawNumberView> views;
 
     /**
+     * @throws IOException
+     * @throws FileNotFoundException
      * 
      */
-    public DrawNumberApp() {
-        this.model = new DrawNumberImpl(MIN, MAX, ATTEMPTS);
-        this.view = new DrawNumberViewImpl();
-        this.view.setObserver(this);
-        this.view.start();
+    public DrawNumberApp() throws FileNotFoundException, IOException {
+        final GameConfiguration configurator = new GameConfigurationImpl();
+        configurator.readConfigurationFile("config.yml");
+        this.model = configurator.initializeGameInstance();
+        this.views = new ArrayList<>();
+        this.views.add(new DrawNumberViewImpl());
+        this.views.add(new StdOutputLoggerView());
+        this.views.add(new FileLoggerView());
+        this.views.stream().forEach(v -> {
+            v.setObserver(this);
+            v.start();
+        });
     }
 
-    @Override
     public void newAttempt(final int n) {
         try {
             final DrawResult result = model.attempt(n);
-            this.view.result(result);
+            this.eventResult(result);
         } catch (IllegalArgumentException e) {
-            this.view.numberIncorrect();
+            this.eventNumberIncorrect();
         } catch (AttemptsLimitReachedException e) {
-            view.limitsReached();
+           this.limitsReached();
         }
+    }
+
+    private void eventResult(final DrawResult result) {
+        this.views.forEach(v -> v.result(result));
+    }
+
+    private void eventNumberIncorrect() {
+        this.views.forEach(v -> v.numberIncorrect());
+    }
+
+    private void limitsReached() {
+        this.views.forEach(v -> v.limitsReached());
     }
 
     @Override
@@ -44,9 +68,11 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
 
     /**
      * @param args
-     *            ignored
+     *                 ignored
+     * @throws IOException
+     * @throws FileNotFoundException
      */
-    public static void main(final String... args) {
+    public static void main(final String... args) throws FileNotFoundException, IOException {
         new DrawNumberApp();
     }
 
